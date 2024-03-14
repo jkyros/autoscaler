@@ -72,20 +72,24 @@ func (*defaultPriorityProcessor) GetUpdatePriority(pod *apiv1.Pod, _ *vpa_types.
 				} else {
 					// TODO(jkyros): For in place VPA, this is gross, but we need this pod to be in the eviction list because it doesn't actually have
 					// the resources it asked for even if the spec is right
-					if statusRequest, hasStatusRequest := pod.Status.ContainerStatuses[num].Resources.Requests[resourceName]; hasStatusRequest {
-						if request.MilliValue() > statusRequest.MilliValue() {
-							// It's okay if we're actually still resizing, but if we can't now or we're stuck, make sure the pod
-							// is still in the list so we can evict it to go live on a fatter node or something
-							if pod.Status.Resize == apiv1.PodResizeStatusDeferred || pod.Status.Resize == apiv1.PodResizeStatusInfeasible {
-								klog.V(4).Infof("Pod %s looks like it's stuck scaling up (%v state), leaving it in for eviction", pod.Name, pod.Status.Resize)
-							} else {
-								klog.V(4).Infof("Pod %s is in the process of scaling up (%v state), leaving it alone", pod.Name, pod.Status.Resize)
+					// TODO(jkyros): Can we have empty container status at this point for real? It's at least failing the tests if we don't check, but
+					// we could just populate the status in the tests
+					if len(pod.Status.ContainerStatuses) > num {
+						if statusRequest, hasStatusRequest := pod.Status.ContainerStatuses[num].Resources.Requests[resourceName]; hasStatusRequest {
+							if request.MilliValue() > statusRequest.MilliValue() {
+								// It's okay if we're actually still resizing, but if we can't now or we're stuck, make sure the pod
+								// is still in the list so we can evict it to go live on a fatter node or something
+								if pod.Status.Resize == apiv1.PodResizeStatusDeferred || pod.Status.Resize == apiv1.PodResizeStatusInfeasible {
+									klog.V(4).Infof("Pod %s looks like it's stuck scaling up (%v state), leaving it in for eviction", pod.Name, pod.Status.Resize)
+								} else {
+									klog.V(4).Infof("Pod %s is in the process of scaling up (%v state), leaving it alone", pod.Name, pod.Status.Resize)
 
-							}
-							// I guess if it's not outside of compliance, it's probably okay it's stuck here?
-							if (hasLowerBound && statusRequest.Cmp(lowerBound) < 0) ||
-								(hasUpperBound && statusRequest.Cmp(upperBound) > 0) {
-								outsideRecommendedRange = true
+								}
+								// I guess if it's not outside of compliance, it's probably okay it's stuck here?
+								if (hasLowerBound && statusRequest.Cmp(lowerBound) < 0) ||
+									(hasUpperBound && statusRequest.Cmp(upperBound) > 0) {
+									outsideRecommendedRange = true
+								}
 							}
 						}
 					}
