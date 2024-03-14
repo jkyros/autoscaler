@@ -348,17 +348,16 @@ func (u *updater) AttemptInPlaceScalingIfPossible(ctx context.Context, vpaSize i
 				fallBackToEviction = true
 				return
 
-			} else {
-				if pod.Status.Resize != apiv1.PodResizeStatusDeferred && pod.Status.Resize != apiv1.PodResizeStatusInfeasible {
-					klog.V(4).Infof("In-place update in progress for %s, not falling back to eviction", pod.Name)
-					fallBackToEviction = false
-					return
-				} else {
-					klog.V(4).Infof("In-place update looks stuck for %s, falling back to eviction", pod.Name)
-					fallBackToEviction = true
-					return
-				}
 			}
+			if pod.Status.Resize != apiv1.PodResizeStatusDeferred && pod.Status.Resize != apiv1.PodResizeStatusInfeasible {
+				klog.V(4).Infof("In-place update in progress for %s, not falling back to eviction", pod.Name)
+				fallBackToEviction = false
+				return
+			}
+			klog.V(4).Infof("In-place update looks stuck for %s, falling back to eviction", pod.Name)
+			fallBackToEviction = true
+			return
+
 		}
 
 		// TODO(jkyros): need our own rate limiter or can we freeload off the eviction one?
