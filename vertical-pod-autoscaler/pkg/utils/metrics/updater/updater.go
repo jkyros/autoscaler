@@ -160,12 +160,12 @@ func NewInPlaceUpdtateablePodsCounter() *SizeBasedGauge {
 	return newSizeBasedGauge(evictableCount)
 }
 
-// NewVpasWithEvictablePodsCounter returns a wrapper for counting VPA objects with Pods matching in-place update criteria
+// NewVpasWithInPlaceUpdtateablePodsCounter returns a wrapper for counting VPA objects with Pods matching in-place update criteria
 func NewVpasWithInPlaceUpdtateablePodsCounter() *SizeBasedGauge {
 	return newSizeBasedGauge(vpasWithEvictablePodsCount)
 }
 
-// NewVpasWithEvictedPodsCounter returns a wrapper for counting VPA objects with evicted Pods
+// NewVpasWithInPlaceUpdtatedPodsCounter returns a wrapper for counting VPA objects with evicted Pods
 func NewVpasWithInPlaceUpdtatedPodsCounter() *SizeBasedGauge {
 	return newSizeBasedGauge(vpasWithEvictedPodsCount)
 }
