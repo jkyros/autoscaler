@@ -74,7 +74,8 @@ func (*defaultPriorityProcessor) GetUpdatePriority(pod *apiv1.Pod, _ *vpa_types.
 					// the resources it asked for even if the spec is right
 					// TODO(jkyros): Can we have empty container status at this point for real? It's at least failing the tests if we don't check, but
 					// we could just populate the status in the tests
-					if len(pod.Status.ContainerStatuses) > num {
+					// Statuses can be missing, or status resources can be nil
+					if len(pod.Status.ContainerStatuses) > num && pod.Status.ContainerStatuses[num].Resources != nil {
 						if statusRequest, hasStatusRequest := pod.Status.ContainerStatuses[num].Resources.Requests[resourceName]; hasStatusRequest {
 							if request.MilliValue() > statusRequest.MilliValue() {
 								// It's okay if we're actually still resizing, but if we can't now or we're stuck, make sure the pod
