@@ -304,9 +304,12 @@ func (f *podsEvictionRestrictionFactoryImpl) NewPodsEvictionRestriction(pods []*
 			for num, container := range pod.Spec.Containers {
 				// TODO(jkyros): supported resources only?
 				podHasAnyResizingContainers := false
-				if !reflect.DeepEqual(container.Resources, *pod.Status.ContainerStatuses[num].Resources) {
-					klog.Warningf("Resize must be in progress for %s, resources for container %s don't match", pod.Name, container.Name)
-					podHasAnyResizingContainers = true
+				// Resources can be nil in status, especially when we don't have the feature gate on
+				if pod.Status.ContainerStatuses[num].Resources != nil {
+					if !reflect.DeepEqual(container.Resources, *pod.Status.ContainerStatuses[num].Resources) {
+						klog.Warningf("Resize must be in progress for %s, resources for container %s don't match", pod.Name, container.Name)
+						podHasAnyResizingContainers = true
+					}
 				}
 
 				if podHasAnyResizingContainers {
@@ -616,11 +619,22 @@ func (e *podsEvictionRestrictionImpl) IsInPlaceUpdating(podToCheck *apiv1.Pod) (
 	// also need to mark that?
 	for num, container := range podToCheck.Spec.Containers {
 		// TODO(jkyros): supported resources only?
-		if !reflect.DeepEqual(container.Resources, *podToCheck.Status.ContainerStatuses[num].Resources) {
-			klog.V(4).Infof("Resize must be in progress for %s, resources for container %s don't match", podToCheck.Name, container.Name)
-			return true
+		// Resources can be nil, especially if the feature gate isn't on
+		if podToCheck.Status.ContainerStatuses[num].Resources != nil {
+
+			if !reflect.DeepEqual(container.Resources, *podToCheck.Status.ContainerStatuses[num].Resources) {
+				klog.V(4).Infof("Resize must be in progress for %s, resources for container %s don't match", podToCheck.Name, container.Name)
+				return true
+			}
 		}
 	}
 	return false
 
 }
+
+/*
+func BadResizeStatus(pod *apiv1.Pod) bool {
+	if pod.Status.Resize == apiv1.PodResizeStatusInfeasible{
+
+	}
+}*/
