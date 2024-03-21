@@ -330,7 +330,7 @@ func (u *updater) AttemptInPlaceScalingIfPossible(ctx context.Context, vpaSize i
 	defer vpasWithInPlaceUpdatablePodsCounter.Observe()
 	defer vpasWithInPlaceUpdatedPodsCounter.Observe()
 
-	if vpa_api_util.GetUpdateMode(vpa) == vpa_types.UpdateModeInPlaceOrRecreate || vpa_api_util.GetUpdateMode(vpa) == vpa_types.UpdateModeAuto {
+	if vpa_api_util.GetUpdateMode(vpa) == vpa_types.UpdateModeInPlaceOrRecreate {
 
 		// TODO(jkyros): I don't think this can happen, it gets removed immedialy by admission if admitted
 		if _, ok := pod.Annotations["autoscaling.k8s.io/resize"]; ok {
