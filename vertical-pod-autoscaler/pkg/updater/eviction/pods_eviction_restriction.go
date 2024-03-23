@@ -548,6 +548,7 @@ func (e *podsEvictionRestrictionImpl) InPlaceUpdate(podToUpdate *apiv1.Pod, even
 	return nil
 }
 
+// IsInPlaceUpdating checks whether or not the given pod is currently in the middle of an in-place update
 func IsInPlaceUpdating(podToCheck *apiv1.Pod) (isUpdating bool) {
 	// If the pod is currently updating we need to tally that
 	if podToCheck.Status.Resize != "" {
