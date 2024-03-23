@@ -576,6 +576,8 @@ func InstallLimitRangeWithMin(f *framework.Framework, minCpuLimit, minMemoryLimi
 	installLimitRange(f, &minCpuLimitQuantity, &minMemoryLimitQuantity, nil, nil, lrType)
 }
 
+// WaitForPodsUpdatedWithoutEviction waits for pods to be updated without any evictions taking place over the polling
+// interval.
 func WaitForPodsUpdatedWithoutEviction(f *framework.Framework, initialPods, podList *apiv1.PodList) error {
 	// TODO(jkyros): This needs to be:
 	// 1. Make sure we wait for each of the containers to get an update queued
