@@ -207,10 +207,23 @@ func parseVpaObservedContainers(pod *apiv1.Pod) (bool, sets.String) {
 	return hasObservedContainers, vpaContainerSet
 }
 
+// TODO(jkyros): I made this poblic, but there may be a cleaner way
+// PrioritizedPod contains the priority and recommendation details for a pod.
 type PrioritizedPod struct {
 	pod            *apiv1.Pod
 	priority       PodPriority
 	recommendation *vpa_types.RecommendedPodResources
+}
+
+// TODO(jkyros): scope issues, maybe not the best place to put Disruptionless
+// IsDisruptionless returns the disruptionless status of the underlying pod priority
+func (p PrioritizedPod) IsDisruptionless() bool {
+	return p.priority.Disruptionless
+}
+
+// Pod returns the underlying private pod
+func (p PrioritizedPod) Pod() *apiv1.Pod {
+	return p.pod
 }
 
 // PodPriority contains data for a pod update that can be used to prioritize between updates.
@@ -252,15 +265,6 @@ func (p PodPriority) Less(other PodPriority) bool {
 	}
 	// 2. A pod with larger value of resourceDiff takes precedence.
 	return p.ResourceDiff < other.ResourceDiff
-}
-
-// IsDisruptionless returns the disruptionless status of the underlying pod priority
-// TODO(jkyros): scope issues, maybe not the best place to put Disruptionless
-func (p PrioritizedPod) IsDisruptionless() bool {
-	return p.priority.Disruptionless
-}
-func (p PrioritizedPod) Pod() *apiv1.Pod {
-	return p.pod
 }
 
 // CalcualteDisruptionFreeUpdate calculates the set of actions we think we can perform without disruption based on the pod/container resize/restart
