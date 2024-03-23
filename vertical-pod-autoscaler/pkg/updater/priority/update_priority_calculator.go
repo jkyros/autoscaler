@@ -207,16 +207,16 @@ func parseVpaObservedContainers(pod *apiv1.Pod) (bool, sets.String) {
 	return hasObservedContainers, vpaContainerSet
 }
 
-// TODO(jkyros): I made this poblic, but there may be a cleaner way
 // PrioritizedPod contains the priority and recommendation details for a pod.
+// TODO(jkyros): I made this public, but there may be a cleaner way
 type PrioritizedPod struct {
 	pod            *apiv1.Pod
 	priority       PodPriority
 	recommendation *vpa_types.RecommendedPodResources
 }
 
-// TODO(jkyros): scope issues, maybe not the best place to put Disruptionless
 // IsDisruptionless returns the disruptionless status of the underlying pod priority
+// TODO(jkyros): scope issues, maybe not the best place to put Disruptionless
 func (p PrioritizedPod) IsDisruptionless() bool {
 	return p.priority.Disruptionless
 }
@@ -286,7 +286,7 @@ func (calc *UpdatePriorityCalculator) CalcualteDisruptionFreeActions(pod *apiv1.
 			continue
 		}
 		// Then we go through all the resource recommendations it has
-		for resource, _ := range resourceRec.Target {
+		for resource := range resourceRec.Target {
 			// And we look up what the restart policy is for those resources
 			resourceRestartPolicy := getRestartPolicyForResource(resource, container.ResizePolicy)
 			// If we don't have one, that's probably bad
