@@ -155,7 +155,7 @@ func AddEvictedPod(vpaSize int) {
 	evictedCount.WithLabelValues(strconv.Itoa(log2)).Inc()
 }
 
-// e returns a wrapper for counting Pods which are matching in-place update criteria
+// NewInPlaceUpdtateablePodsCounter returns a wrapper for counting Pods which are matching in-place update criteria
 func NewInPlaceUpdtateablePodsCounter() *SizeBasedGauge {
 	return newSizeBasedGauge(evictableCount)
 }
