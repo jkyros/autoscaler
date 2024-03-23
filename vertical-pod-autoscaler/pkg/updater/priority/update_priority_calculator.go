@@ -267,7 +267,7 @@ func (p PodPriority) Less(other PodPriority) bool {
 	return p.ResourceDiff < other.ResourceDiff
 }
 
-// CalcualteDisruptionFreeUpdate calculates the set of actions we think we can perform without disruption based on the pod/container resize/restart
+// CalcualteDisruptionFreeActions calculates the set of actions we think we can perform without disruption based on the pod/container resize/restart
 // policies and returns that set of actions.
 func (calc *UpdatePriorityCalculator) CalcualteDisruptionFreeActions(pod *apiv1.Pod, recommendation *vpa_types.RecommendedPodResources) *vpa_types.RecommendedPodResources {
 
