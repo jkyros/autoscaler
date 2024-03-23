@@ -356,7 +356,7 @@ func (u *updater) AttemptInPlaceScalingIfPossible(ctx context.Context, vpaSize i
 	if !VpaReommendationProvided(vpa) {
 		klog.V(4).Infof("VPA hasn't made a recommendation yet, we're early on %s for some reason", pod.Name)
 		// TODO(jkyros): so we must have had some erroneous evictions before, but we were passing the test suite? But for now if I want to test
-		// in-place I need it to not evict immediatley if I can't in-place (because then it will never in-place)
+		// in-place I need it to not evict immediately if I can't in-place (because then it will never in-place)
 		fallBackToEviction = false
 		return
 	}
