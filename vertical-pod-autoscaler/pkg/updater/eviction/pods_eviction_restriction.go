@@ -424,29 +424,6 @@ func setUpInformer(kubeClient kube_client.Interface, kind controllerKind) (cache
 	return informer, nil
 }
 
-func (e *podsEvictionRestrictionImpl) IsInPlaceUpdatePossible(pod *apiv1.Pod) bool {
-	_, present := e.podToReplicaCreatorMap[getPodID(pod)]
-	// TODO(jkyros): why is present checked twice?
-	if present {
-
-		// If our QoS class is guaranteed, we can't change the resources without a restart
-		if pod.Status.QOSClass == apiv1.PodQOSGuaranteed {
-			klog.Warning("impossible to resize %s in-place, pod QoS is %s", pod.Name, pod.Status.QOSClass)
-			return false
-		}
-
-		// No point in in-place resizing if it's not running, right?
-		if pod.Status.Phase != apiv1.PodRunning {
-			klog.Warning("impossible to resize %s in-place, pod phase is %v (needs to be %v)", pod.Name, pod.Status.Phase, apiv1.PodRunning)
-			return false
-		}
-
-	} else {
-		klog.V(4).Info("mpossible to resize %s in-place, pod was not present", pod.Name)
-	}
-	return false
-}
-
 // CanInPlaceUpdate performs the same checks
 func (e *podsEvictionRestrictionImpl) CanInPlaceUpdate(pod *apiv1.Pod) bool {
 
