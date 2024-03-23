@@ -264,6 +264,9 @@ func (u *updater) RunOnce(ctx context.Context) {
 	timer.ObserveStep("EvictPods")
 }
 
+// VpaReommendationProvided checks the VPA status to see if it has provided a recommendation yet. Used
+// to make sure we don't get bogus values for in-place scaling
+// TODO(jkyros):  take this out when you find the proper place to gate this
 func VpaReommendationProvided(vpa *vpa_types.VerticalPodAutoscaler) bool {
 	for _, condition := range vpa.Status.Conditions {
 
