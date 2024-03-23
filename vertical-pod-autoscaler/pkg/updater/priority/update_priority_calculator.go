@@ -287,7 +287,7 @@ func (calc *UpdatePriorityCalculator) CalcualteDisruptionFreeActions(pod *apiv1.
 		}
 		// Then we go through all the resource recommendations it has
 		for resource, _ := range resourceRec.Target {
-			// And we look up what the restart policy is for thsoe resources
+			// And we look up what the restart policy is for those resources
 			resourceRestartPolicy := getRestartPolicyForResource(resource, container.ResizePolicy)
 			// If we don't have one, that's probably bad
 			if resourceRestartPolicy == nil {
