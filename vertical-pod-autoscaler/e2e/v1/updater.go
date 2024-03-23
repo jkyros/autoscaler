@@ -41,7 +41,7 @@ var _ = UpdaterE2eDescribe("Updater", func() {
 	// TODO(jkyros): it should only evict here if the feature gate is off, so we need to
 	// check behavior by making sure it aligns with the feature gate. e.g. if it's on, then do this test, if it's not, then skip it
 
-	// 1. check if we have resize policies, if we do, do the test with in-palce
+	// 1. check if we have resize policies, if we do, do the test with in-place
 	// 2. if we don't, then do it the old way
 
 	ginkgo.It("In-place update pods when Admission Controller status available", func() {
