@@ -424,11 +424,12 @@ func (feeder *clusterStateFeeder) LoadPods() {
 // the VPA will split the recommended resources across containers that
 // are no longer present, resulting in the containers that are still
 // present being under-resourced
-func (feeder *clusterStateFeeder) PruneContainers() {
+func (feeder *clusterStateFeeder) PruneContainers2() {
 
 	var keysPruned int
 	// Look through all of our VPAs
 	for _, vpa := range feeder.clusterState.Vpas {
+		// TODO(jkyros): maybe vpa.PruneInitialAggregateContainerStates() ?
 		aggregates := vpa.AggregateStateByContainerNameWithoutCheckpoints()
 		// Check each initial state to see if it's still "real"
 		for container := range vpa.ContainersInitialAggregateState {
@@ -444,7 +445,7 @@ func (feeder *clusterStateFeeder) PruneContainers() {
 	}
 }
 
-func (feeder *clusterStateFeeder) PruneContainers2() {
+func (feeder *clusterStateFeeder) PruneContainers() {
 	klog.Infof("Pruning containers")
 
 	// Find all the containers that are legitimately in pods
