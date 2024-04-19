@@ -160,6 +160,9 @@ func (r *recommender) RunOnce() {
 	r.clusterStateFeeder.LoadPods()
 	timer.ObserveStep("LoadPods")
 
+	r.clusterStateFeeder.PruneContainers()
+	timer.ObserveStep("PruneContainers")
+
 	r.clusterStateFeeder.LoadRealTimeMetrics()
 	timer.ObserveStep("LoadMetrics")
 	klog.V(3).Infof("ClusterState is tracking %v PodStates and %v VPAs", len(r.clusterState.Pods), len(r.clusterState.Vpas))
