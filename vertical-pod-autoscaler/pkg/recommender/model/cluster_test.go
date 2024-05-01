@@ -29,7 +29,7 @@ import (
 	"k8s.io/klog/v2"
 
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
-	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
+	controllerfetcher "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/test"
 )
 
@@ -909,7 +909,7 @@ func TestVPAWithMatchingPods(t *testing.T) {
 				containerID := ContainerID{testPodID, "foo"}
 				assert.NoError(t, cluster.AddOrUpdateContainer(containerID, testRequest))
 			}
-			assert.Equal(t, tc.expectedMatch, cluster.Vpas[vpa.ID].PodCount)
+			assert.Equal(t, tc.expectedMatch, cluster.Vpas[vpa.ID].PodCount())
 		})
 	}
 	// Run with adding Pods first
@@ -922,7 +922,7 @@ func TestVPAWithMatchingPods(t *testing.T) {
 				assert.NoError(t, cluster.AddOrUpdateContainer(containerID, testRequest))
 			}
 			vpa := addVpa(cluster, testVpaID, testAnnotations, tc.vpaSelector, testTargetRef)
-			assert.Equal(t, tc.expectedMatch, cluster.Vpas[vpa.ID].PodCount)
+			assert.Equal(t, tc.expectedMatch, cluster.Vpas[vpa.ID].PodCount())
 		})
 	}
 }

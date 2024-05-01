@@ -91,7 +91,7 @@ func (r *recommender) UpdateVPAs() {
 		if !found {
 			continue
 		}
-		resources := r.podResourceRecommender.GetRecommendedPodResources(GetContainerNameToAggregateStateMap(vpa), vpa.ContainersPerPod)
+		resources := r.podResourceRecommender.GetRecommendedPodResources(GetContainerNameToAggregateStateMap(vpa), vpa.MaxContainersPerPod())
 		had := vpa.HasRecommendation()
 
 		listOfResourceRecommendation := logic.MapToListOfRecommendedContainerResources(resources)
@@ -104,7 +104,7 @@ func (r *recommender) UpdateVPAs() {
 		if vpa.HasRecommendation() && !had {
 			metrics_recommender.ObserveRecommendationLatency(vpa.Created)
 		}
-		hasMatchingPods := vpa.PodCount > 0
+		hasMatchingPods := vpa.PodCount() > 0
 		vpa.UpdateConditions(hasMatchingPods)
 		if err := r.clusterState.RecordRecommendation(vpa, time.Now()); err != nil {
 			klog.Warningf("%v", err)
@@ -112,10 +112,10 @@ func (r *recommender) UpdateVPAs() {
 				klog.Infof("VPA dump")
 				klog.Infof("%+v", vpa)
 				klog.Infof("HasMatchingPods: %v", hasMatchingPods)
-				klog.Infof("PodCount: %v", vpa.PodCount)
+				klog.Infof("PodCount: %v", vpa.PodCount())
 				pods := r.clusterState.GetMatchingPods(vpa)
 				klog.Infof("MatchingPods: %+v", pods)
-				if len(pods) != vpa.PodCount {
+				if len(pods) != vpa.PodCount() {
 					klog.Errorf("ClusterState pod count and matching pods disagree for vpa %v/%v", vpa.ID.Namespace, vpa.ID.VpaName)
 				}
 			}

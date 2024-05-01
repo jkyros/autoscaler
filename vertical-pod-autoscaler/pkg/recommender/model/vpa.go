@@ -108,13 +108,8 @@ type Vpa struct {
 	APIVersion string
 	// TargetRef points to the controller managing the set of pods.
 	TargetRef *autoscaling.CrossVersionObjectReference
-	// PodCount contains number of live Pods matching a given VPA object.
-	PodCount int
-	// ContainersPerPod contains the "high water mark" of the number of containers
-	// per pod to average the recommendation across. Used to make sure we aren't
-	// "fractionalizing" minResources erroneously during a redeploy when when a pod's
-	// container is removed or renamed
-	ContainersPerPod int
+	// ManagedPods contains the list of live Pods matching a given VPA object.
+	ManagedPods map[PodID]*PodState
 }
 
 // NewVpa returns a new Vpa with a given ID and pod selector. Doesn't set the
@@ -133,8 +128,8 @@ func NewVpa(id VpaID, selector labels.Selector, created time.Time) *Vpa {
 		// client conversion, this needs to be done based on the resource content.
 		// The K8s client will not return the resource apiVersion as it's converted
 		// to the version requested by the client server side.
-		APIVersion: vpa_types.SchemeGroupVersion.Version,
-		PodCount:   0,
+		APIVersion:  vpa_types.SchemeGroupVersion.Version,
+		ManagedPods: make(map[PodID]*PodState),
 	}
 	return vpa
 }
@@ -170,7 +165,7 @@ func (vpa *Vpa) UpdateRecommendation(recommendation *vpa_types.RecommendedPodRes
 	for _, containerRecommendation := range recommendation.ContainerRecommendations {
 		for container, state := range vpa.aggregateContainerStates {
 			if container.ContainerName() == containerRecommendation.ContainerName {
-				metrics_quality.ObserveRecommendationChange(state.LastRecommendation, containerRecommendation.UncappedTarget, vpa.UpdateMode, vpa.PodCount)
+				metrics_quality.ObserveRecommendationChange(state.LastRecommendation, containerRecommendation.UncappedTarget, vpa.UpdateMode, vpa.PodCount())
 				state.LastRecommendation = containerRecommendation.UncappedTarget
 			}
 		}
@@ -301,4 +296,24 @@ func (vpa *Vpa) HasMatchedPods() bool {
 		return false
 	}
 	return true
+}
+
+// PodCount returns the number of pods managed by this VPA, which is just
+// the length of its ManagedPods map
+func (vpa *Vpa) PodCount() int {
+	return len(vpa.ManagedPods)
+}
+
+// MaxContainersPerPod calculates the maxium number of containers across
+// all pods managed by this VPA. Used when splitting resources across containers
+// to prevent resources being erroneously spread too thin during rollouts when
+// the pod's container list is changing.
+func (vpa *Vpa) MaxContainersPerPod() int {
+	maxContainers := 0
+	for _, pod := range vpa.ManagedPods {
+		if len(pod.Containers) > maxContainers {
+			maxContainers = len(pod.Containers)
+		}
+	}
+	return maxContainers
 }

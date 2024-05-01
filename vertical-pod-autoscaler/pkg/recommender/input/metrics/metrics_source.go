@@ -18,6 +18,8 @@ package metrics
 
 import (
 	"context"
+	"time"
+
 	k8sapiv1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -28,7 +30,6 @@ import (
 	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	resourceclient "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 	"k8s.io/metrics/pkg/client/external_metrics"
-	"time"
 )
 
 // PodMetricsLister wraps both metrics-client and External Metrics
@@ -82,7 +83,7 @@ func (s *externalMetricsClient) List(ctx context.Context, namespace string, opts
 	result := v1beta1.PodMetricsList{}
 
 	for _, vpa := range s.clusterState.Vpas {
-		if vpa.PodCount == 0 {
+		if vpa.PodCount() == 0 {
 			continue
 		}
 
